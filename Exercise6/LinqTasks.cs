@@ -222,7 +222,7 @@ namespace Exercise6
         /// </summary>
         public static IEnumerable<Emp> Task4()
         {
-            var methodSyntax = Emps.Where(e => e.Salary == Emps.Max(e => e.Salary));
+            var methodSyntax = Emps.Where(e => e.Salary == Emps.Max(em => em.Salary));
 
             var querySyntax =
                 from e in Emps
@@ -296,7 +296,13 @@ namespace Exercise6
         /// </summary>
         public static bool Task8()
         {
-            bool result = false;
+            var methodSyntax = Emps
+                .Where(e => e.Job == "Backend programmer");
+
+            var querySyntax = (from e in Emps
+                where e.Job == "Backend programmer"
+                select e).Count();
+            bool result = querySyntax > 0 ? true:false ;
             return result;
         }
 
@@ -327,7 +333,17 @@ namespace Exercise6
         /// </summary>
         public static IEnumerable<object> Task10()
         {
-            IEnumerable<object> result = null;
+            var methodSyntax = Emps
+                .Select(e => new { e.Ename, e.Job, e.HireDate });
+                //.Union(new { Ename = "Brak wartości", Job = (string)null, HireDate = (DateTime?)null });
+
+            var querySyntax = (from e in Emps
+                    select new { e.Ename, e.Job, e.HireDate }).Union(
+                    from e in new[] { new { Ename = "Brak wartości", Job = (string)null, HireDate = (DateTime?)null } }
+                    select e
+        );
+
+        IEnumerable<object> result = null;
             return result;
         }
 

@@ -279,7 +279,7 @@ namespace Exercise6
         {
             var methodSyntax = Emps
                 .GroupBy(e => e.Job)
-                .Select(g => new { Praca = g.Key, LiczbaPracownikow = g.Count() });
+                .Select(e => new { Praca = e.Key, LiczbaPracownikow = e.Count() });
 
             var querySyntax =
                 from e in Emps
@@ -314,8 +314,7 @@ namespace Exercise6
         {
             var methodSyntax = Emps
                 .Where(e => e.Job == "Frontend programmer")
-                .OrderByDescending(e => e.HireDate)
-                .FirstOrDefault();
+                .OrderByDescending(e => e.HireDate);
 
             var querySyntax = (from e in Emps
                 where e.Job == "Frontend programmer"
@@ -360,6 +359,19 @@ namespace Exercise6
         /// </summary>
         public static IEnumerable<object> Task11()
         {
+            var querySyntax = from e in Emps
+                group e by e.Deptno
+                into gr
+                where gr.Count() > 1
+                select new
+                {
+                    name = (from d in Depts
+                        where d.Deptno == gr.Key
+                        select d.Dname),
+                    empNum = gr.Count()
+                };
+                                
+
             IEnumerable<object> result = null;
             return result;
         }
@@ -373,7 +385,18 @@ namespace Exercise6
         /// </summary>
         public static IEnumerable<Emp> Task12()
         {
-            IEnumerable<Emp> result = null;
+
+            var querySyntax =
+                from e in Emps
+                where (Emps.Join(Emps,
+                    employer => employer.Empno,
+                    employee => employee.Mgr,
+                    (e, d) => new { e.Ename, e.Job }).Any())
+                orderby e.Ename
+                select e;
+                            
+                        
+            IEnumerable<Emp> result = querySyntax;
             return result;
         }
 

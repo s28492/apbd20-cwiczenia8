@@ -167,7 +167,7 @@ namespace Exercise6
             // Method syntax
             var methodSyntax =
                 Emps
-                    .Where(e => e.Job.Equals("Backend programmer"));
+                    .Where(e => e.Job == "Backend programmer");
             
             // Query syntax
             var querySyntax =
@@ -186,8 +186,8 @@ namespace Exercise6
             // Method syntax
             var methodSyntax =
                 Emps
-                    .Where(e => e.Job.Equals("Frontend programmer") && e.Salary > 1000)
-                    .OrderByDescending(e => e.Ename);
+                    .Where(emp => emp.Job == "Frontend programmer" && emp.Salary > 1000)
+                    .OrderBy(emp => emp.Ename);
             
             // Query syntax
             var querySyntax =
@@ -207,7 +207,7 @@ namespace Exercise6
         public static int Task3()
         {
             var methodSyntax = Emps
-                .Max(s => s.Salary);
+                .Max(emp => emp.Salary);
 
             var querySyntax =
                 (from e in Emps
@@ -222,7 +222,10 @@ namespace Exercise6
         /// </summary>
         public static IEnumerable<Emp> Task4()
         {
-            var methodSyntax = Emps.Where(e => e.Salary == Emps.Max(em => em.Salary));
+            var methodSyntax = Emps
+                .Where(emp => emp.Salary == Emps
+                    .Max(emp => emp.Salary))
+                .Select(e => e);
 
             var querySyntax =
                 from e in Emps
@@ -240,7 +243,9 @@ namespace Exercise6
         {
             // Method syntax
             var methodSyntax = 
-                Emps.Select(e => new { Nazwisko = e.Ename, Praca = e.Job });
+                Emps
+                    .Select(e => new { Nazwisko = e.Ename,
+                                            Praca = e.Job });
             
             // Query syntax
             var querySyntax =
@@ -258,10 +263,23 @@ namespace Exercise6
         /// </summary>
         public static IEnumerable<object> Task6()
         {
-            var methodSyntax = Emps.Join(Depts,
-                e => e.Deptno,
-                d => d.Deptno,
-                (e, d) => new { e.Ename, e.Job, d.Dname });
+            var methodSyntax = Emps
+                .Join(Depts, 
+                    emp => emp.Deptno,
+                    dept => dept.Deptno,
+                    (emp, dept) => new
+                    {
+                        emp.Ename,
+                        emp.Job,
+                        dept.Dname
+                    })
+                .Select(e => new
+                {
+                    ename = e.Ename,
+                    job = e.Job,
+                    dname = e.Dname
+                });
+                
             
             var querySyntax =
                 from e in Emps
@@ -278,8 +296,12 @@ namespace Exercise6
         public static IEnumerable<object> Task7()
         {
             var methodSyntax = Emps
-                .GroupBy(e => e.Job)
-                .Select(e => new { Praca = e.Key, LiczbaPracownikow = e.Count() });
+                .GroupBy(emp => emp.Job)
+                .Select(group => new
+                {
+                    Praca = group.Key,
+                    LiczbaPracownikow = group.Count()
+                });
 
             var querySyntax =
                 from e in Emps
@@ -297,7 +319,7 @@ namespace Exercise6
         public static bool Task8()
         {
             var methodSyntax = Emps
-                .Where(e => e.Job == "Backend programmer");
+                .Any(e => e.Job == "Backend programmer");
 
             var querySyntax = (from e in Emps
                 where e.Job == "Backend programmer"
@@ -313,8 +335,7 @@ namespace Exercise6
         public static Emp Task9()
         {
             var methodSyntax = Emps
-                .Where(e => e.Job == "Frontend programmer")
-                .OrderByDescending(e => e.HireDate);
+                .Where(e => e.Job == "Frontend programmer").MaxBy(e => e.HireDate);
 
             var querySyntax = (from e in Emps
                 where e.Job == "Frontend programmer"
@@ -333,8 +354,7 @@ namespace Exercise6
         public static IEnumerable<object> Task10()
         {
             var methodSyntax = Emps
-                .Select(e => new { e.Ename, e.Job, e.HireDate });
-                //.Union(new { Ename = "Brak wartości", Job = (string)null, HireDate = (DateTime?)null });
+                .
 
             var querySyntax = (from e in Emps
                     select new { e.Ename, e.Job, e.HireDate }).Union(
@@ -388,10 +408,7 @@ namespace Exercise6
 
             var querySyntax =
                 from e in Emps
-                where (Emps.Join(Emps,
-                    employer => employer.Empno,
-                    employee => employee.Mgr,
-                    (e, d) => new { e.Ename, e.Job }).Any())
+                join emp in Emps on e.Empno equals emp.Mgr
                 orderby e.Ename
                 select e;
                             
